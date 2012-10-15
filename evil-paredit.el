@@ -1,8 +1,26 @@
+;;; evil-paredit.el - Paredit support for evil keybindings
+;;
+;; Copyright (C) 2012 Roman Gonzalez
+;;
+;; Author: Roman Gonzalez <romanandreg@gmail.com>
+;; Mantainer: Roman Gonzalez <romanandreg@gmail.com>
+;; Keywords: paredit, evil
+;;
+;; This file is NOT part of GNU Emacs.
+;;
+;; This file is free software (MIT License)
+
+;; Version: 0.0.1
+
+;; Package-Requires: ((evil "0.1") (paredit ""))
+
+;;; Code:
+
 (require 'evil)
 (require 'paredit)
 
 (define-minor-mode evil-paredit-mode
-  "..."
+  "Minor mode for setting up Evil with paredit in a single buffer"
   :keymap '())
 
 (defun -evil-paredit-check-region (beginning end)
@@ -92,7 +110,7 @@ If TYPE is `line', insertion starts on an empty line.
 If TYPE is `block', the inserted text in inserted at each line
 of the block."
   (interactive "<R><x><y>")
-  (let ((delete-func (or delete-func #'zoo/evil-paredit-delete))
+  (let ((delete-func (or delete-func #'evil-paredit-delete))
         (nlines (1+ (- (line-number-at-pos end)
                        (line-number-at-pos beg)))))
     (funcall delete-func beg end type register yank-handler)
@@ -111,13 +129,6 @@ of the block."
   (interactive "<R><x><y>")
   (evil-paredit-change beg end type register yank-handler))
 
-(evil-define-operator evil-paredit-delete-char
-  (beg end type register)
-  "Delete next character respecting parenthesis."
-  :motion evil-forward-char
-  (interactive "<R><x>")
-  (evil-paredit-delete beg end type register))
-
 (evil-define-key 'normal evil-paredit-mode-map
   (kbd "d") 'evil-paredit-delete
   (kbd "c") 'evil-paredit-change
@@ -125,6 +136,8 @@ of the block."
   (kbd "D") 'evil-paredit-delete-line
   (kbd "C") 'evil-paredit-change-line
   (kbd "Y") 'evil-paredit-yank-line
-  (kbd "x") 'evil-paredit-delete-char)
+  (kbd "x") 'paredit-forward-delete)
 
 (provide 'evil-paredit)
+
+;;; filename ends here
