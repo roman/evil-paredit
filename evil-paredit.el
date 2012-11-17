@@ -12,6 +12,8 @@
 
 ;; Version: 0.0.1
 
+;; URL: https://github.com/roman/evil-paredit
+
 ;; Package-Requires: ((evil "0.0.0") (paredit "1"))
 
 ;;; Code:
