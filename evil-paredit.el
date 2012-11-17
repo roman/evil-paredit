@@ -1,4 +1,4 @@
-;;; evil-paredit.el - Paredit support for evil keybindings
+;;; evil-paredit.el --- Paredit support for evil keybindings
 ;;
 ;; Copyright (C) 2012 Roman Gonzalez
 ;;
@@ -12,7 +12,9 @@
 
 ;; Version: 0.0.1
 
-;; Package-Requires: ((evil "0.1") (paredit ""))
+;; URL: https://github.com/roman/evil-paredit
+
+;; Package-Requires: ((evil "0.0.0") (paredit "1"))
 
 ;;; Code:
 
@@ -140,4 +142,4 @@ of the block."
 
 (provide 'evil-paredit)
 
-;;; filename ends here
+;;; evil-paredit.el ends here
