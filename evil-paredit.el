@@ -12,7 +12,7 @@
 
 ;; Version: 0.0.1
 
-;; Package-Requires: ((evil "0.1") (paredit ""))
+;; Package-Requires: ((evil "0.0.0") (paredit ""))
 
 ;;; Code:
 
