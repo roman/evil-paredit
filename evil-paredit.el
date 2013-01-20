@@ -138,6 +138,7 @@ of the block."
   (kbd "D") 'evil-paredit-delete-line
   (kbd "C") 'evil-paredit-change-line
   (kbd "Y") 'evil-paredit-yank-line
+  (kbd "X") 'paredit-backward-delete
   (kbd "x") 'paredit-forward-delete)
 
 (provide 'evil-paredit)
