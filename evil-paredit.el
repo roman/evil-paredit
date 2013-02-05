@@ -25,12 +25,24 @@
   "Minor mode for setting up Evil with paredit in a single buffer"
   :keymap '())
 
+(defun -evil-paredit-check-region (beginning end)
+  (if (and beginning end)
+      ;; Check that region begins and ends in a sufficiently similar
+      ;; state, so that deleting it will leave the buffer balanced.
+      (save-excursion
+        (goto-char beginning)
+        (let* ((state (paredit-current-parse-state))
+               (state* (parse-partial-sexp beginning end nil nil state)))
+          (paredit-check-region-state state state*)))))
+
 (evil-define-operator evil-paredit-yank (beg end type register yank-handler)
   "Saves the characters in motion into the kill-ring."
   :move-point nil
   :repeat nil
   (interactive "<R><x><y>")
-  (paredit-check-region-for-delete beg end)
+  (if (boundp 'paredit-check-region-state)
+      (-evil-paredit-check-region beg end)
+    (paredit-check-region-for-delete beg end))
   (cond
    ((eq type 'block)
     (evil-yank-rectangle beg end register yank-handler))
