@@ -40,9 +40,10 @@
   :move-point nil
   :repeat nil
   (interactive "<R><x><y>")
-  (-evil-paredit-check-region beg end)
+  (if (boundp 'paredit-check-region-state)
+      (-evil-paredit-check-region beg end)
+    (paredit-check-region-for-delete beg end))
   (cond
-
    ((eq type 'block)
     (evil-yank-rectangle beg end register yank-handler))
    ((eq type 'line)
