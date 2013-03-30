@@ -40,7 +40,7 @@
   :move-point nil
   :repeat nil
   (interactive "<R><x><y>")
-  (if (boundp 'paredit-check-region-state)
+  (if (fboundp 'paredit-check-region-state)
       (-evil-paredit-check-region beg end)
     (paredit-check-region-for-delete beg end))
   (cond
