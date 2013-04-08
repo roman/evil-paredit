@@ -23,7 +23,10 @@
 
 (define-minor-mode evil-paredit-mode
   "Minor mode for setting up Evil with paredit in a single buffer"
-  :keymap '())
+  :keymap '()
+  (let ((prev-state evil-state))
+    (evil-normal-state)
+    (evil-change-state prev-state)))
 
 (defun -evil-paredit-check-region (beginning end)
   (if (and beginning end)
