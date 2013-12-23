@@ -154,7 +154,13 @@ of the block."
   "Change to end of line respecting parenthesis."
   :motion evil-end-of-line
   (interactive "<R><x><y>")
-  (evil-paredit-change beg end type register yank-handler))
+  (let ((paren-count (count-matches "(" (line-beginning-position)
+                                    (line-end-position)))
+        (last-balanced-paren (evil-paredit-position-of
+                              "\)"
+                              (line-beginning-position)
+                              (line-end-position))))
+    (evil-paredit-change beg last-balanced-paren type register yank-handler)))
 
 (evil-define-key 'normal evil-paredit-mode-map
   (kbd "d") 'evil-paredit-delete
