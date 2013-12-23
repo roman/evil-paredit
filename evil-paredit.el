@@ -83,7 +83,15 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   (interactive "<R><x>")
   ;; act linewise in Visual state
   (let* ((beg (or beg (point)))
-         (end (or end beg)))
+         (end (or end beg))
+         ;; NOTE the following count will be off when it encounters
+         ;; parens in strings.
+         (paren-count (count-matches "(" (line-beginning-position)
+                                     (line-end-position)))
+         (last-balanced-paren (evil-paredit-position-of
+                               "\)"
+                               (line-beginning-position)
+                               (line-end-position))))
     (when (evil-visual-state-p)
       (unless (memq type '(line block))
         (let ((range (evil-expand beg end 'line)))
@@ -103,9 +111,17 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
      ((eq type 'line)
       (evil-paredit-delete beg end type register yank-handler))
      (t
-      (evil-paredit-delete beg (line-end-position)
-                               type register yank-handler)))))
+      (evil-paredit-delete beg last-balanced-paren
+                           type register yank-handler)))))
 
+
+(defun evil-paredit-position-of (regexp start stop &optional nth)
+  "Returns the buffer position of the `nth' occurrence of
+  `regexp' between buffer positions `start' and `stop'"
+  (save-excursion
+    (goto-char start)
+    (re-search-forward regexp stop (or nth 1))
+    (point)))
 
 (evil-define-operator evil-paredit-change
   (beg end type register yank-handler delete-func)
