@@ -59,7 +59,13 @@
   :motion evil-line
   :move-point nil
   (interactive "<R><x>")
-  (evil-paredit-yank beg end type register))
+  (let ((paren-count (count-matches "(" (line-beginning-position)
+                                    (line-end-position)))
+        (last-balanced-paren (evil-paredit-position-of
+                              "\)"
+                              (line-beginning-position)
+                              (line-end-position))))
+    (evil-paredit-yank beg last-balanced-paren type register)))
 
 (evil-define-operator evil-paredit-delete
   (beg end type register yank-handler)
@@ -113,7 +119,6 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
      (t
       (evil-paredit-delete beg last-balanced-paren
                            type register yank-handler)))))
-
 
 (defun evil-paredit-position-of (regexp start stop &optional nth)
   "Returns the buffer position of the `nth' occurrence of
