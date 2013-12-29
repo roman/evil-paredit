@@ -59,13 +59,19 @@
   :motion evil-line
   :move-point nil
   (interactive "<R><x>")
-  (let ((paren-count (count-matches "(" (line-beginning-position)
-                                    (line-end-position)))
-        (last-balanced-paren (evil-paredit-position-of
-                              "\)"
-                              (line-beginning-position)
-                              (line-end-position))))
-    (evil-paredit-yank beg last-balanced-paren type register)))
+  (let* ((paren-count (count-matches "(" (line-beginning-position)
+                                     (line-end-position)))
+         (closing-parens (count-matches ")" (point)
+                                        (line-end-position)))
+         (last-balanced-paren (evil-paredit-position-of
+                               "\)"
+                               (point)
+                               (line-end-position)
+                               paren-count))
+         (end (or end (if (= closing-parens 0)
+                          (line-end-position)
+                        last-balanced-paren))))
+    (evil-paredit-yank beg end type register)))
 
 (evil-define-operator evil-paredit-delete
   (beg end type register yank-handler)
@@ -89,15 +95,20 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   (interactive "<R><x>")
   ;; act linewise in Visual state
   (let* ((beg (or beg (point)))
-         (end (or end beg))
          ;; NOTE the following count will be off when it encounters
          ;; parens in strings.
-         (paren-count (count-matches "(" (line-beginning-position)
+         (paren-count (count-matches "(" (point)
                                      (line-end-position)))
+         (closing-parens (count-matches ")" (point)
+                                        (line-end-position)))
          (last-balanced-paren (evil-paredit-position-of
                                "\)"
-                               (line-beginning-position)
-                               (line-end-position))))
+                               (point)
+                               (line-end-position)
+                               paren-count))
+         (end (or end (if (= closing-parens 0)
+                          (line-end-position)
+                        last-balanced-paren))))
     (when (evil-visual-state-p)
       (unless (memq type '(line block))
         (let ((range (evil-expand beg end 'line)))
@@ -117,7 +128,7 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
      ((eq type 'line)
       (evil-paredit-delete beg end type register yank-handler))
      (t
-      (evil-paredit-delete beg last-balanced-paren
+      (evil-paredit-delete beg end
                            type register yank-handler)))))
 
 (defun evil-paredit-position-of (regexp start stop &optional nth)
@@ -154,13 +165,19 @@ of the block."
   "Change to end of line respecting parenthesis."
   :motion evil-end-of-line
   (interactive "<R><x><y>")
-  (let ((paren-count (count-matches "(" (line-beginning-position)
-                                    (line-end-position)))
-        (last-balanced-paren (evil-paredit-position-of
-                              "\)"
-                              (line-beginning-position)
-                              (line-end-position))))
-    (evil-paredit-change beg last-balanced-paren type register yank-handler)))
+  (let* ((paren-count (count-matches "(" (point)
+                                     (line-end-position)))
+         (closing-parens (count-matches ")" (point)
+                                        (line-end-position)))
+         (last-balanced-paren (evil-paredit-position-of
+                               "\)"
+                               (point)
+                               (line-end-position)
+                               paren-count))
+         (end (if (= closing-parens 0)
+                  (line-end-position)
+                last-balanced-paren)))
+    (evil-paredit-change (point) end type register yank-handler)))
 
 (evil-define-key 'normal evil-paredit-mode-map
   (kbd "d") 'evil-paredit-delete
