@@ -59,18 +59,8 @@
   :motion evil-line
   :move-point nil
   (interactive "<R><x>")
-  (let* ((paren-count (count-matches "(" (line-beginning-position)
-                                     (line-end-position)))
-         (closing-parens (count-matches ")" (point)
-                                        (line-end-position)))
-         (last-balanced-paren (evil-paredit-position-of
-                               "\)"
-                               (point)
-                               (line-end-position)
-                               paren-count))
-         (end (or end (if (= closing-parens 0)
-                          (line-end-position)
-                        last-balanced-paren))))
+  (let* ((beg (point))
+         (end (evil-paredit-kill-end)))
     (evil-paredit-yank beg end type register)))
 
 (evil-define-operator evil-paredit-delete
@@ -93,51 +83,35 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   :motion nil
   :keep-visual t
   (interactive "<R><x>")
-  ;; act linewise in Visual state
-  (let* ((beg (or beg (point)))
-         ;; NOTE the following count will be off when it encounters
-         ;; parens in strings.
-         (paren-count (count-matches "(" (point)
-                                     (line-end-position)))
-         (closing-parens (count-matches ")" (point)
-                                        (line-end-position)))
-         (last-balanced-paren (evil-paredit-position-of
-                               "\)"
-                               (point)
-                               (line-end-position)
-                               paren-count))
-         (end (or end (if (= closing-parens 0)
-                          (line-end-position)
-                        last-balanced-paren))))
-    (when (evil-visual-state-p)
-      (unless (memq type '(line block))
-        (let ((range (evil-expand beg end 'line)))
-          (setq beg (evil-range-beginning range)
-                end (evil-range-end range)
-                type (evil-type range))))
-      (evil-exit-visual-state))
-    (cond
-     ((eq type 'block)
-      ;; equivalent to $d, i.e., we use the block-to-eol selection and
-      ;; call `evil-delete'. In this case we fake the call to
-      ;; `evil-end-of-line' by setting `temporary-goal-column' and
-      ;; `last-command' appropriately as `evil-end-of-line' would do.
-      (let ((temporary-goal-column most-positive-fixnum)
-            (last-command 'next-line))
-        (evil-paredit-delete beg end 'block register yank-handler)))
-     ((eq type 'line)
-      (evil-paredit-delete beg end type register yank-handler))
-     (t
-      (evil-paredit-delete beg end
-                           type register yank-handler)))))
+  (let* ((beg (point))
+         (end (evil-paredit-kill-end)))
+    (evil-paredit-delete beg end
+                         type register yank-handler)))
 
-(defun evil-paredit-position-of (regexp start stop &optional nth)
-  "Returns the buffer position of the `nth' occurrence of
-  `regexp' between buffer positions `start' and `stop'"
-  (save-excursion
-    (goto-char start)
-    (re-search-forward regexp stop (or nth 1))
-    (point)))
+(defun evil-paredit-kill-end ()
+  "Returns the position where paredit-kill would kill to"
+  (when (paredit-in-char-p)             ; Move past the \ and prefix.
+    (backward-char 2))                  ; (# in Scheme/CL, ? in elisp)
+  (let* ((eol (point-at-eol))
+         (end-of-list-p (save-excursion
+                          (paredit-forward-sexps-to-kill (point) eol))))
+    (if end-of-list-p (progn (up-list) (backward-char)))
+    (cond ((paredit-in-string-p)
+           (if (save-excursion (paredit-skip-whitespace t (point-at-eol))
+                               (eolp))
+               (kill-line)
+             (save-excursion
+               ;; Be careful not to split an escape sequence.
+               (if (paredit-in-string-escape-p)
+                   (backward-char))
+               (min (point-at-eol)
+                    (cdr (paredit-string-start+end-points))))))
+          ((paredit-in-comment-p)
+           eol)
+          (t (if (and (not end-of-list-p)
+                      (eq (point-at-eol) eol))
+                 eol
+               (point))))))
 
 (evil-define-operator evil-paredit-change
   (beg end type register yank-handler delete-func)
@@ -165,19 +139,9 @@ of the block."
   "Change to end of line respecting parenthesis."
   :motion evil-end-of-line
   (interactive "<R><x><y>")
-  (let* ((paren-count (count-matches "(" (point)
-                                     (line-end-position)))
-         (closing-parens (count-matches ")" (point)
-                                        (line-end-position)))
-         (last-balanced-paren (evil-paredit-position-of
-                               "\)"
-                               (point)
-                               (line-end-position)
-                               paren-count))
-         (end (if (= closing-parens 0)
-                  (line-end-position)
-                last-balanced-paren)))
-    (evil-paredit-change (point) end type register yank-handler)))
+  (let* ((beg (point))
+         (end (evil-paredit-kill-end)))
+    (evil-paredit-change beg end type register yank-handler)))
 
 (evil-define-key 'normal evil-paredit-mode-map
   (kbd "d") 'evil-paredit-delete
