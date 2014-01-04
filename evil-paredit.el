@@ -135,12 +135,20 @@ of the block."
   (interactive "<R><x><y>")
   (evil-paredit-change beg end type register yank-handler))
 
+(defun evil-paredit-change-whole-line ()
+  "Change whole line."
+  (interactive)
+  (beginning-of-line)
+  (evil-paredit-change-line nil nil)
+  (indent-according-to-mode))
+
 (evil-define-key 'normal evil-paredit-mode-map
   (kbd "d") 'evil-paredit-delete
   (kbd "c") 'evil-paredit-change
   (kbd "y") 'evil-paredit-yank
   (kbd "D") 'evil-paredit-delete-line
   (kbd "C") 'evil-paredit-change-line
+  (kbd "S") 'evil-paredit-change-whole-line
   (kbd "Y") 'evil-paredit-yank-line
   (kbd "X") 'paredit-backward-delete
   (kbd "x") 'paredit-forward-delete)
