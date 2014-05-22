@@ -21,6 +21,7 @@
 (require 'evil)
 (require 'paredit)
 
+;;;###autoload
 (define-minor-mode evil-paredit-mode
   "Minor mode for setting up Evil with paredit in a single buffer"
   :keymap '()
