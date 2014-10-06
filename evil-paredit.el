@@ -72,7 +72,7 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   (evil-paredit-yank beg end type register yank-handler)
   (if (eq type 'block)
       (evil-apply-on-block #'delete-region beg end nil)
-    (kill-region beg end))
+    (delete-region beg end))
   ;; place cursor on beginning of line
   (when (and (evil-called-interactively-p)
              (eq type 'line))
