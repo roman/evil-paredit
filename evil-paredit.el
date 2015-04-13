@@ -10,11 +10,11 @@
 ;;
 ;; This file is free software (MIT License)
 
-;; Version: 0.0.1
+;; Version: 0.0.2
 
 ;; URL: https://github.com/roman/evil-paredit
 
-;; Package-Requires: ((evil "0.0.0") (paredit "1"))
+;; Package-Requires: ((evil "1.0.9") (paredit "25beta"))
 
 ;;; Code:
 
