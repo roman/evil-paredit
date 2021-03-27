@@ -156,22 +156,20 @@ of the block."
   "Delete character beforepoint."
   :motion nil
   :keep-visual t
-  (interactive "<R><x>")
-  (let* ((beg (1- (point)))
-         (end (point)))
-    (evil-paredit-delete beg end
-                         type register yank-handler)))
+  (interactive "<r><x><y>")
+  (if (and beg end)
+      (evil-paredit-delete beg end type register yank-handler)
+    (evil-paredit-delete (1- (point)) (point) type register yank-handler)))
 
 (evil-define-operator evil-paredit-forward-delete
   (beg end type register yank-handler)
   "Delete character at point."
   :motion nil
   :keep-visual t
-  (interactive "<R><x>")
-  (let* ((beg (point))
-         (end (1+ (point))))
-    (evil-paredit-delete beg end
-                         type register yank-handler)))
+  (interactive "<r><x><y>")
+  (if (and beg end)
+      (evil-paredit-delete beg end type register yank-handler)
+    (evil-paredit-delete (point) (1+ (point)) type register yank-handler)))
 
 (evil-define-key 'normal evil-paredit-mode-map
   (kbd "d") 'evil-paredit-delete
