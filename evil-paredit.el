@@ -154,7 +154,7 @@ of the block."
 (evil-define-operator evil-paredit-backward-delete
   (beg end type register yank-handler)
   "Delete character beforepoint."
-  :motion nil
+  :motion evil-backward-char
   :keep-visual t
   (interactive "<r><x><y>")
   (if (and beg end)
@@ -164,7 +164,7 @@ of the block."
 (evil-define-operator evil-paredit-forward-delete
   (beg end type register yank-handler)
   "Delete character at point."
-  :motion nil
+  :motion evil-forward-char
   :keep-visual t
   (interactive "<r><x><y>")
   (if (and beg end)
