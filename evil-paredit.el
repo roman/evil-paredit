@@ -74,7 +74,7 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
       (evil-apply-on-block #'delete-region beg end nil)
     (delete-region beg end))
   ;; place cursor on beginning of line
-  (when (and (evil-called-interactively-p)
+  (when (and (called-interactively-p 'any)
              (eq type 'line))
     (evil-first-non-blank)))
 
